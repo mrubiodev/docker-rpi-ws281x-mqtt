@@ -24,5 +24,6 @@ def set_segment_color(strip, new_color, start, end):
             print("0", end = " ")
         else:
             print("1", end = " ")
+    print("/////////")
     strip.show()
     
