@@ -1,0 +1,17 @@
+                    {
+                    'name': '%s_%s' % (MQTT_ID, segment_name),
+                    'schema': 'json',
+                    'command_topic': '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name),
+                    'state_topic': '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name),
+                    'availability_topic': MQTT_STATUS_TOPIC, 
+                    'payload_available': MQTT_PAYLOAD_ONLINE,
+                    'payload_not_available': MQTT_PAYLOAD_OFFLINE,
+                    'qos': MQTT_QOS,
+                    'brightness': True,
+                    'rgb': True,
+                    'color_temp': False,
+                    'effect': True,
+                    'effect_list': effect_list_string(),
+                    'optimistic': False,
+                    'unique_id': '%s_%s' % (MQTT_ID, segment_name),
+                }

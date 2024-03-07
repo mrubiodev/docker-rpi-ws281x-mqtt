@@ -290,7 +290,8 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
             segment_count = LED_SEGMENTS.index(segment)
             print("Segment count")
             print(segment_count)
-            discovery_data = json.dumps({
+            discovery_data = json.dumps(
+                {
                 'name': '%s_%s' % (MQTT_ID, segment_name),
                 'schema': 'json',
                 'command_topic': '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name),
@@ -306,7 +307,17 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'effect_list': effect_list_string(),
                 'optimistic': False,
                 'unique_id': '%s_%s' % (MQTT_ID, segment_name),
-            })
+                'device':{
+                    'identifiers':[
+                        "Neopixel"
+                        ],
+                    "name":"Neopixel LED Strip",
+                    "sw_version":"1.0.0",
+                    "manufacturer":"Budgie",
+                    "model":"AAAAAA"
+                    }
+            }
+            )
 
             mqtt.subscribe('%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name))
             mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
