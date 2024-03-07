@@ -261,7 +261,9 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
     if rc == 0:
         print('MQTT connected')
 #durch LED_SEGMENTS iterieren und die Segmente in MQTT bekannt machen
+        print(LED_SEGMENTS)
         for segment in LED_SEGMENTS:
+            print(segment)
             segment_name = 'segment_%d_%d' % (segment[0], segment[1])
             discovery_data = json.dumps({
                 'name': '%s_%s' % (MQTT_ID, segment_name),
