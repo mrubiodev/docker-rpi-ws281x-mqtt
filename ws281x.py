@@ -39,7 +39,7 @@ MQTT_DISCOVERY_PREFIX = os.getenv('MQTT_DISCOVERY_PREFIX',
                                   'homeassistant')
 
 MQTT_STATUS_TOPIC = '%s/alive' % MQTT_PREFIX
-MQTT_STATE_TOPIC = '%s/state' % MQTT_PREFIX
+MQTT_STATE_TOPIC = '%s' % MQTT_PREFIX
 MQTT_COMMAND_TOPIC = '%s' % MQTT_PREFIX
 MQTT_CONFIG_TOPIC = '%s/light/%s' % (MQTT_DISCOVERY_PREFIX,
                                             MQTT_PREFIX)
@@ -254,7 +254,8 @@ def on_mqtt_message(mqtt, data, message):
         response['state'] = current[segment_count]['state']
 
     response = json.dumps(response)
-    mqtt.publish(MQTT_STATE_TOPIC, payload=response, qos=MQTT_QOS,
+    current_state_topic = '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name)
+    mqtt.publish(current_state_topic, payload=response, qos=MQTT_QOS,
                  retain=True)
 
 
@@ -273,8 +274,8 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'name': '%s_%s' % (MQTT_ID, segment_name),
                 'schema': 'json',
                 'command_topic': '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name),
-                'state_topic': '%s/%s' % (MQTT_STATE_TOPIC, segment_name),
-                'availability_topic': MQTT_STATUS_TOPIC,
+                'state_topic': '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name),
+                'availability_topic': MQTT_STATUS_TOPIC, 
                 'payload_available': MQTT_PAYLOAD_ONLINE,
                 'payload_not_available': MQTT_PAYLOAD_OFFLINE,
                 'qos': MQTT_QOS,
@@ -304,7 +305,8 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 response = {'state': current[segment_count]['state']}
 
             response = json.dumps(response)
-            mqtt.publish(MQTT_STATE_TOPIC, payload=response, qos=MQTT_QOS,
+            current_state_topic = '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name)
+            mqtt.publish(current_state_topic, payload=response, qos=MQTT_QOS,
                         retain=True)
     else:
         print('MQTT connect failed:', rc)
