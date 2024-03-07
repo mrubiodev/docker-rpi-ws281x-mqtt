@@ -26,7 +26,7 @@ LED_INVERT = os.getenv('LED_INVERT', 0)
 LED_STRIP_TYPE = os.getenv('LED_STRIP_TYPE', 'GRB').upper()
 #Array für die Segmente erstellen, das Array muss jeweils segment_start und segment_end enthalten
 #Das Array muss zweidimensional sein, also [[segment_start, segment_end], [segment_start, segment_end], ...]
-LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 100], [101, 200]])
+LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 126], [127, 140], [141,176], [177,238], [239,280], [281,408], [409,464]])
 
 
 
