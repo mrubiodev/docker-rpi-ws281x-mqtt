@@ -95,6 +95,8 @@ strip_type_by_name = {
     "GRB": ws.WS2811_STRIP_GRB,
     "RBG": ws.WS2811_STRIP_RBG,
     "RGB": ws.WS2811_STRIP_RGB,
+    "RGBW":ws.SK6812_STRIP_RGBW,
+
 }
 
 # error checking
