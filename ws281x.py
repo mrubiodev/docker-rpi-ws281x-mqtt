@@ -13,7 +13,7 @@ from effects.theater_chase_rainbow import effect_theater_chase_rainbow
 from effects.rainbow_cycle import effect_rainbow_cycle
 from effects.solid import effect_solid
 from effects.solid import effect_solid_segment
-from effects.solid import effect_solid_init
+#from effects.solid import effect_solid_init
 from effects.knight_rider import effect_knight_rider
 from typing import List
 
@@ -255,8 +255,9 @@ def on_mqtt_message(mqtt, data, message):
                         response['error'] = \
                             'Invalid request: A color or a valid effect has to be provided'
 
-                else:
-                    set_all_leds_color(strip, 0x000000)
+                else: #Turn off LEDS
+                    #set_segment_color(strip, 0x000000, )
+                    effect_solid_segment(strip, {'r': 0, 'g': 0, 'b': 0}, 0, segment[0], segment[1])
 
                 response['state'] = current[segment_count]['state']
 
@@ -345,7 +346,7 @@ strip = Adafruit_NeoPixel(
     LED_STRIP_TYPE
 )
 
-effect_solid_init(LED_COUNT)
+#effect_solid_init(LED_COUNT)
 
 # Intialize the library (must be called once before other functions).
 strip.begin()
