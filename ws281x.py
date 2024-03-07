@@ -322,7 +322,7 @@ strip = Adafruit_NeoPixel(
 strip.begin()
 set_all_leds_color(strip, 0x000000)
 
-mqtt = paho.Client(client_id=MQTT_ID, protocol=paho.MQTTv311)
+mqtt = paho.Client(paho.CallbackAPIVersion.VERSION1, MQTT_ID)
 
 
 mqtt.on_message = on_mqtt_message
