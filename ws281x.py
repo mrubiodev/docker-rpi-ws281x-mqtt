@@ -22,6 +22,10 @@ LED_DMA_NUM = os.getenv('LED_DMA_NUM', 10)
 LED_BRIGHTNESS = os.getenv('LED_BRIGHTNESS', 255)
 LED_INVERT = os.getenv('LED_INVERT', 0)
 LED_STRIP_TYPE = os.getenv('LED_STRIP_TYPE', 'GRB').upper()
+#Array für die Segmente erstellen, das Array muss jeweils segment_start und segment_end enthalten
+#Das Array muss zweidimensional sein, also [[segment_start, segment_end], [segment_start, segment_end], ...]
+LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 10]])
+
 
 MQTT_BROKER = os.getenv('MQTT_BROKER', 'localhost')
 MQTT_USER = os.getenv('MQTT_USER', None)
@@ -43,16 +47,22 @@ MQTT_PAYLOAD_ONLINE = '1'
 MQTT_PAYLOAD_OFFLINE = '0'
 
 # global states
-current = {
-    'state': 'OFF',
-    'color': {'r': 255, 'g': 255, 'b': 255},
-    'brightness': 255,
-    'effect': 'effect_solid'
-}
+#iteriere durch led segments und füge in jedes segment ein current dict ein
+#current dict enthält die aktuellen Werte für das Segment
+for segment in LED_SEGMENTS:
+    segment_count = LED_SEGMENTS.index(segment)
+    current[segment_count] = {
+        'state': 'OFF',
+        'color': {'r': 255, 'g': 255, 'b': 255},
+        'brightness': 255,
+        'effect': 'effect_solid'
+    }
+
 
 # worker process that maintains running effects
-effect_process = None
-effect_active = False
+#basierend auf der Anzahl der LED_SEGMENTS
+effect_processes = [None] * len(LED_SEGMENTS)
+effect_active = [False] * len(LED_SEGMENTS)
 
 # key is actually a function name
 effects_list = {
@@ -62,6 +72,7 @@ effects_list = {
     },
     'color_effects': {
         'effect_solid': 'Solid',
+        'effect_solid_segment': 'Solid Segment',
         'effect_knight_rider': 'Knight Rider'
     }
 }
@@ -139,77 +150,81 @@ def get_fn_pretty(fn):
     return None
 
 
-def on_mqtt_message(mqtt, data, message):
+def on_mqtt_message(mqtt, data, message):    
     payload = json.loads(str(message.payload.decode('utf-8')))
     print('Message received ', payload)
 
     global current, effect_active, effect_process
     response = {}
+    #MQTT Message auslesen und in die Segmente schreiben
+    for segment in LED_SEGMENTS:
+        segment_name = 'segment_%d_%d' % (segment[0], segment[1])
+        segment_count = LED_SEGMENTS.index(segment)
+        if message.topic == '%s/%s' % (MQTT_COMMAND_TOPIC, segment_name):
+            if payload['state'] == 'ON' or payload['state'] == 'OFF':
+                if current[segment_count]['state'] != payload['state']:
+                    print("Turning %s" % payload['state'])
 
-    if payload['state'] == 'ON' or payload['state'] == 'OFF':
-        if current['state'] != payload['state']:
-            print("Turning %s" % payload['state'])
+                    # set global state
+                    current[segment_count]['state'] = payload['state']
 
-            # set global state
-            current['state'] = payload['state']
+                # terminate active effect
+                if effect_active:
+                    effect_process.terminate()
+                    effect_active = False
 
-        # terminate active effect
-        if effect_active:
-            effect_process.terminate()
-            effect_active = False
+                # power on led strip
+                if current[segment_count]['state'] == 'ON':
+                    # extract fields from payload
+                    if 'effect' in payload:
+                        fn = get_fn(payload['effect'])
 
-        # power on led strip
-        if current['state'] == 'ON':
-            # extract fields from payload
-            if 'effect' in payload:
-                fn = get_fn(payload['effect'])
+                        if fn is None:
+                            response['error'] = "Unsupported effect '%s'" % payload['effect']
 
-                if fn is None:
-                    response['error'] = "Unsupported effect '%s'" % payload['effect']
+                        else:
+                            # set global efect
+                            current[segment_count]['effect'] = fn
 
-                else:
-                    # set global efect
-                    current['effect'] = fn
+                    if 'brightness' in payload:
+                        if 0 <= payload['brightness'] <= 255:
+                            # set global brightness
+                            current[segment_count]['brightness'] = payload['brightness']
+                        else:
+                            response['error'] = "Invalid brightness '%u'" % payload['brightness']
 
-            if 'brightness' in payload:
-                if 0 <= payload['brightness'] <= 255:
-                    # set global brightness
-                    current['brightness'] = payload['brightness']
-                else:
-                    response['error'] = "Invalid brightness '%u'" % payload['brightness']
+                    if 'color' in payload:
+                        if ('r' in payload['color'] and 0 <= payload['color']['r'] <= 255) \
+                            and ('g' in payload['color'] and 0 <= payload['color']['g'] <= 255) \
+                                and ('b' in payload['color'] and 0 <= payload['color']['b'] <= 255):
+                            # set global color
+                            current[segment_count]['color'] = payload['color']
+                        else:
+                            response['error'] = "Invalid color payload"
 
-            if 'color' in payload:
-                if ('r' in payload['color'] and 0 <= payload['color']['r'] <= 255) \
-                    and ('g' in payload['color'] and 0 <= payload['color']['g'] <= 255) \
-                        and ('b' in payload['color'] and 0 <= payload['color']['b'] <= 255):
-                    # set global color
-                    current['color'] = payload['color']
-                else:
-                    response['error'] = "Invalid color payload"
+                    response['effect'] = get_fn_pretty(current['effect'])
+                    response['brightness'] = current['brightness']
+                    response['color'] = current['color']
 
-            response['effect'] = get_fn_pretty(current['effect'])
-            response['brightness'] = current['brightness']
-            response['color'] = current['color']
-
-            # efects with color
-            if current['effect'] in effects_list['color_effects']:
-                print('Setting new color effect: "%s"' %
-                      get_fn_pretty(current['effect']))
-
-                effect_process = \
-                    multiprocessing.Process(target=loop_function_call, args=(
-                        current['effect'], strip, current['color'], current['brightness']))
-                effect_process.start()
-                effect_active = True
+                    # efects with color
+                    if current[segment_count]['effect'] in effects_list['color_effects']:
+                        print('Setting new color effect: "%s"' %
+                            get_fn_pretty(current[segment_count]['effect']))
+#Basierend auf dem aktuellen segment count das effect_process[] starten                                
+                        effect_process[segment.count] = \
+                            multiprocessing.Process(target=loop_function_call, args=(
+                                current[segment_count]['effect'], strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1]))
+                        effect_process[segment.count].start()
+                effect_active[segment.count] = True
 
             # efects not dependant on the color
-            elif current['effect'] in effects_list['effects']:
+            elif current[segment_count]['effect'] in effects_list['effects']:
                 print('Setting new effect: "%s"' %
-                      get_fn_pretty(current['effect']))
+                      get_fn_pretty(current[segment_count]['effect']))
 
                 effect_process = \
                     multiprocessing.Process(target=loop_function_call,
-                                            args=(current['effect'], strip, 30))
+                                            args=(current[segment_count]['effect'], strip, 30))
                 effect_process.start()
                 effect_active = True
 
@@ -229,7 +244,7 @@ def on_mqtt_message(mqtt, data, message):
     if 'error' in response:
         print(response['error'])
 
-        current['state'] = 'OFF'
+        current[segment_count]['state'] = 'OFF'
         response['state'] = current['state']
 
     response = json.dumps(response)
@@ -240,30 +255,32 @@ def on_mqtt_message(mqtt, data, message):
 def on_mqtt_connect(mqtt, userdata, flags, rc):
     if rc == 0:
         print('MQTT connected')
+#durch LED_SEGMENTS iterieren und die Segmente in MQTT bekannt machen
+        for segment in LED_SEGMENTS:
+            segment_name = 'segment_%d_%d' % (segment[0], segment[1])
+            discovery_data = json.dumps({
+                'name': '%s_%s' % (MQTT_ID, segment_name),
+                'schema': 'json',
+                'command_topic': '%s/%s' % (MQTT_COMMAND_TOPIC, segment_name),
+                'state_topic': '%s/%s' % (MQTT_STATE_TOPIC, segment_name),
+                'availability_topic': MQTT_STATUS_TOPIC,
+                'payload_available': MQTT_PAYLOAD_ONLINE,
+                'payload_not_available': MQTT_PAYLOAD_OFFLINE,
+                'qos': MQTT_QOS,
+                'brightness': True,
+                'rgb': True,
+                'color_temp': False,
+                'effect': True,
+                'effect_list': effect_list_string(),
+                'optimistic': False,
+                'unique_id': '%s_%s' % (MQTT_ID, segment_name),
+            })
 
-        discovery_data = json.dumps({
-            'name': MQTT_ID,
-            'schema': 'json',
-            'command_topic': MQTT_COMMAND_TOPIC,
-            'state_topic': MQTT_STATE_TOPIC,
-            'availability_topic': MQTT_STATUS_TOPIC,
-            'payload_available': MQTT_PAYLOAD_ONLINE,
-            'payload_not_available': MQTT_PAYLOAD_OFFLINE,
-            'qos': MQTT_QOS,
-            'brightness': True,
-            'rgb': True,
-            'color_temp': False,
-            'effect': True,
-            'effect_list': effect_list_string(),
-            'optimistic': False,
-            'unique_id': MQTT_ID,
-        })
-
-        mqtt.subscribe(MQTT_COMMAND_TOPIC)
-        mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
-                     qos=MQTT_QOS, retain=True)
-        mqtt.publish(MQTT_CONFIG_TOPIC, payload=discovery_data,
-                     qos=MQTT_QOS, retain=True)
+            mqtt.subscribe('%s/%s' % (MQTT_COMMAND_TOPIC, segment_name))
+            mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
+                         qos=MQTT_QOS, retain=True)
+            mqtt.publish('%s/%s' % (MQTT_CONFIG_TOPIC, segment_name),
+                         payload=discovery_data, qos=MQTT_QOS, retain=True)
 
         if current['state'] == 'ON':
             response = {
