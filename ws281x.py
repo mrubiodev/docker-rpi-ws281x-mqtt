@@ -164,8 +164,10 @@ def on_mqtt_message(mqtt, data, message):
     response = {}
     #MQTT Message auslesen und in die Segmente schreiben
     for segment in LED_SEGMENTS:
+        print(segment)
         segment_name = 'segment_%d_%d' % (segment[0], segment[1])
         segment_count = LED_SEGMENTS.index(segment)
+        print(message.topic)
         if message.topic == '%s/%s' % (MQTT_COMMAND_TOPIC, segment_name):
             if payload['state'] == 'ON' or payload['state'] == 'OFF':
                 if current[segment_count]['state'] != payload['state']:
