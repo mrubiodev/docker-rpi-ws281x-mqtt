@@ -13,3 +13,8 @@ def set_all_leds_color(strip, new_color):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, new_color)
     strip.show()
+
+def set_range_leds_color(strip, start, end, new_color):
+    for i in range(start, end):
+        strip.setPixelColor(i, new_color)
+    strip.show()
