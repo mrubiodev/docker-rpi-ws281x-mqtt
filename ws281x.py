@@ -182,7 +182,9 @@ def on_mqtt_message(mqtt, data, message):
 
                 # terminate active effect
                 if effect_active[segment_count]:
-                    effect_process[segment_count].terminate()
+                    if effect_process[segment_count] is not None:
+                        effect_process[segment_count].terminate()
+                        effect_process[segment_count] = None  # Optionally reset the entry after termination
                     effect_active[segment_count] = False
 
                 # power on led strip
