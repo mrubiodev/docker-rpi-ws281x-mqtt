@@ -14,7 +14,9 @@ def set_all_leds_color(strip, new_color):
         strip.setPixelColor(i, new_color)
     strip.show()
 
-def set_range_leds_color(strip, start, end, new_color):
+#led strip in segmenten ansteuern
+def set_segment_color(strip, new_color, start, end):
     for i in range(start, end):
         strip.setPixelColor(i, new_color)
     strip.show()
+    
