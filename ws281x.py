@@ -63,10 +63,16 @@ for segment in LED_SEGMENTS:
     }
     current.append(current_instance)
 
-effect_processes: List[multiprocessing.Process] = []
+#effect_processes: List[multiprocessing.Process] = []
+#for segment in LED_SEGMENTS:
+#    effect_processes.append(multiprocessing.Process())
+
+effect_process = [None] * len(LED_SEGMENTS)  # Assuming LED_SEGMENTS defines the segments
+
+
 effect_active = []
 for segment in LED_SEGMENTS:
-    effect_active.append(multiprocessing.Process)
+    effect_active.append(multiprocessing.Process())
 
 # key is actually a function name
 effects_list = {
