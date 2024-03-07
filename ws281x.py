@@ -290,7 +290,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'unique_id': '%s_%s' % (MQTT_ID, segment_name),
             })
 
-            mqtt.subscribe('%s/%s' % (MQTT_COMMAND_TOPIC, segment_name))
+            mqtt.subscribe('%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name))
             mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
                          qos=MQTT_QOS, retain=True)
             mqtt.publish('%s/%s/config' % (MQTT_CONFIG_TOPIC, segment_name),
