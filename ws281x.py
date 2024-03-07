@@ -40,8 +40,8 @@ MQTT_DISCOVERY_PREFIX = os.getenv('MQTT_DISCOVERY_PREFIX',
 
 MQTT_STATUS_TOPIC = '%s/alive' % MQTT_PREFIX
 MQTT_STATE_TOPIC = '%s/state' % MQTT_PREFIX
-MQTT_COMMAND_TOPIC = '%s/command' % MQTT_PREFIX
-MQTT_CONFIG_TOPIC = '%s/light/%s/config' % (MQTT_DISCOVERY_PREFIX,
+MQTT_COMMAND_TOPIC = '%s' % MQTT_PREFIX
+MQTT_CONFIG_TOPIC = '%s/light/%s' % (MQTT_DISCOVERY_PREFIX,
                                             MQTT_PREFIX)
 
 MQTT_PAYLOAD_ONLINE = '1'
@@ -272,7 +272,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
             discovery_data = json.dumps({
                 'name': '%s_%s' % (MQTT_ID, segment_name),
                 'schema': 'json',
-                'command_topic': '%s/%s' % (MQTT_COMMAND_TOPIC, segment_name),
+                'command_topic': '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name),
                 'state_topic': '%s/%s' % (MQTT_STATE_TOPIC, segment_name),
                 'availability_topic': MQTT_STATUS_TOPIC,
                 'payload_available': MQTT_PAYLOAD_ONLINE,
@@ -290,7 +290,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
             mqtt.subscribe('%s/%s' % (MQTT_COMMAND_TOPIC, segment_name))
             mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
                          qos=MQTT_QOS, retain=True)
-            mqtt.publish('%s/%s' % (MQTT_CONFIG_TOPIC, segment_name),
+            mqtt.publish('%s/%s/config' % (MQTT_CONFIG_TOPIC, segment_name),
                          payload=discovery_data, qos=MQTT_QOS, retain=True)
 
             if current[segment_count]['state'] == 'ON':
