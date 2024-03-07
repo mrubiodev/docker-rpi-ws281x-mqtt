@@ -27,6 +27,7 @@ LED_STRIP_TYPE = os.getenv('LED_STRIP_TYPE', 'GRB').upper()
 LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 10]])
 
 
+
 MQTT_BROKER = os.getenv('MQTT_BROKER', 'localhost')
 MQTT_USER = os.getenv('MQTT_USER', None)
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD', None)
@@ -265,8 +266,9 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
         for segment in LED_SEGMENTS:
             print(segment)
             #1 sekunde warten
-            time.sleep(1)
+            #time.sleep(1)
             segment_name = 'segment_%d_%d' % (segment[0], segment[1])
+            segment_count = LED_SEGMENTS.index(segment)
             discovery_data = json.dumps({
                 'name': '%s_%s' % (MQTT_ID, segment_name),
                 'schema': 'json',
@@ -291,19 +293,19 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
             mqtt.publish('%s/%s' % (MQTT_CONFIG_TOPIC, segment_name),
                          payload=discovery_data, qos=MQTT_QOS, retain=True)
 
-        if current['state'] == 'ON':
-            response = {
-                'state': current['state'],
-                'color': current['color'],
-                'effect': get_fn_pretty(current['effect']),
-                'brightness': current['brightness']
-            }
-        else:
-            response = {'state': current['state']}
+            if current[segment_count]['state'] == 'ON':
+                response = {
+                    'state': current['state'],
+                    'color': current['color'],
+                    'effect': get_fn_pretty(current['effect']),
+                    'brightness': current['brightness']
+                }
+            else:
+                response = {'state': current['state']}
 
-        response = json.dumps(response)
-        mqtt.publish(MQTT_STATE_TOPIC, payload=response, qos=MQTT_QOS,
-                     retain=True)
+            response = json.dumps(response)
+            mqtt.publish(MQTT_STATE_TOPIC, payload=response, qos=MQTT_QOS,
+                        retain=True)
     else:
         print('MQTT connect failed:', rc)
 
