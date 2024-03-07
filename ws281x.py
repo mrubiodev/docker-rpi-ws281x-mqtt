@@ -13,6 +13,7 @@ from effects.theater_chase_rainbow import effect_theater_chase_rainbow
 from effects.rainbow_cycle import effect_rainbow_cycle
 from effects.solid import effect_solid
 from effects.solid import effect_solid_segment
+from effects.solid import effect_solid_init
 from effects.knight_rider import effect_knight_rider
 from typing import List
 
