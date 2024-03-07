@@ -12,6 +12,7 @@ from effects.utils.utils import *
 from effects.theater_chase_rainbow import effect_theater_chase_rainbow
 from effects.rainbow_cycle import effect_rainbow_cycle
 from effects.solid import effect_solid
+from effects.solid import effect_solid_segment
 from effects.knight_rider import effect_knight_rider
 from typing import List
 
@@ -59,7 +60,7 @@ for segment in LED_SEGMENTS:
         'state': 'OFF',
         'color': {'r': 255, 'g': 255, 'b': 255},
         'brightness': 255,
-        'effect': 'effect_solid'
+        'effect': 'effect_solid_segment'
     }
     current.append(current_instance)
 
