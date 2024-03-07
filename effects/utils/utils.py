@@ -19,7 +19,7 @@ def set_segment_color(strip, new_color, start, end):
     for i in range(start, end):
         strip.setPixelColor(i, new_color)
     for i in range(460):
-        if i == 0:
+        if strip.getStripColor() == 0:
             print("0", end = " ")
         else:
             print("1", end = " ")
