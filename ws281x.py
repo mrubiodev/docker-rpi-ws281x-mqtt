@@ -306,7 +306,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'effect': True,
                 'effect_list': effect_list_string(),
                 'optimistic': False,
-                'unique_id': '%s_%s' % (MQTT_ID, segment_name),
+                'uniq_id': '%s_%s' % (MQTT_ID, segment_name),
                 'device':{
                     'identifiers':[
                         'Neopixel'
