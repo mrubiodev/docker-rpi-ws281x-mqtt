@@ -230,42 +230,42 @@ def on_mqtt_message(mqtt, data, message):
                             multiprocessing.Process(target=loop_function_call, args=(
                                 current[segment_count]['effect'], strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1]))
                         effect_process[segment_count].start()
-                effect_active[segment_count] = True
+                        effect_active[segment_count] = True
 
-            # efects not dependant on the color
-            elif current[segment_count]['effect'] in effects_list['effects']:
-                print('Setting new effect: "%s"' %
-                      get_fn_pretty(current[segment_count]['effect']))
+                    # efects not dependant on the color
+                    elif current[segment_count]['effect'] in effects_list['effects']:
+                        print('Setting new effect: "%s"' %
+                            get_fn_pretty(current[segment_count]['effect']))
 
-                effect_process[segment_count] = \
-                    multiprocessing.Process(target=loop_function_call,
-                                            args=(current[segment_count]['effect'], strip, 30))
-                effect_process[segment_count].start()
-                effect_active[segment_count] = True
+                        effect_process[segment_count] = \
+                            multiprocessing.Process(target=loop_function_call,
+                                                    args=(current[segment_count]['effect'], strip, 30))
+                        effect_process[segment_count].start()
+                        effect_active[segment_count] = True
+
+                    else:
+                        response['error'] = \
+                            'Invalid request: A color or a valid effect has to be provided'
+
+                else:
+                    set_all_leds_color(strip, 0x000000)
+
+                response['state'] = current[segment_count]['state']
 
             else:
-                response['error'] = \
-                    'Invalid request: A color or a valid effect has to be provided'
+                response['state'] = 'none'
+                response['error'] = "Invalid request: Missing/invalid 'state' field"
 
-        else:
-            set_all_leds_color(strip, 0x000000)
+            if 'error' in response:
+                print(response['error'])
 
-        response['state'] = current[segment_count]['state']
+                current[segment_count]['state'] = 'OFF'
+                response['state'] = current[segment_count]['state']
 
-    else:
-        response['state'] = 'none'
-        response['error'] = "Invalid request: Missing/invalid 'state' field"
-
-    if 'error' in response:
-        print(response['error'])
-
-        current[segment_count]['state'] = 'OFF'
-        response['state'] = current[segment_count]['state']
-
-    response = json.dumps(response)
-    current_state_topic = '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name)
-    mqtt.publish(current_state_topic, payload=response, qos=MQTT_QOS,
-                 retain=True)
+            response = json.dumps(response)
+            current_state_topic = '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name)
+            mqtt.publish(current_state_topic, payload=response, qos=MQTT_QOS,
+                        retain=True)
 
 
 def on_mqtt_connect(mqtt, userdata, flags, rc):
