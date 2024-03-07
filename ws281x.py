@@ -54,7 +54,14 @@ MQTT_PAYLOAD_OFFLINE = '0'
 #current definieren
 
 current = []
-
+for segment in LED_SEGMENTS:
+    current_instance = {
+        'state': 'OFF',
+        'color': {'r': 255, 'g': 255, 'b': 255},
+        'brightness': 255,
+        'effect': 'effect_solid'
+    }
+    current.append(current_instance)
 
 effect_processes: List[multiprocessing.Process] = []
 effect_active = []
