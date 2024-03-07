@@ -208,9 +208,9 @@ def on_mqtt_message(mqtt, data, message):
                         else:
                             response['error'] = "Invalid color payload"
 
-                    response['effect'] = get_fn_pretty(current['effect'])
-                    response['brightness'] = current['brightness']
-                    response['color'] = current['color']
+                    response['effect'] = get_fn_pretty(current[segment_count]['effect'])
+                    response['brightness'] = current[segment_count]['brightness']
+                    response['color'] = current[segment_count]['color']
 
                     # efects with color
                     if current[segment_count]['effect'] in effects_list['color_effects']:
@@ -241,7 +241,7 @@ def on_mqtt_message(mqtt, data, message):
         else:
             set_all_leds_color(strip, 0x000000)
 
-        response['state'] = current['state']
+        response['state'] = current[segment_count]['state']
 
     else:
         response['state'] = 'none'
@@ -251,7 +251,7 @@ def on_mqtt_message(mqtt, data, message):
         print(response['error'])
 
         current[segment_count]['state'] = 'OFF'
-        response['state'] = current['state']
+        response['state'] = current[segment_count]['state']
 
     response = json.dumps(response)
     mqtt.publish(MQTT_STATE_TOPIC, payload=response, qos=MQTT_QOS,
@@ -301,7 +301,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                     'brightness': current['brightness']
                 }
             else:
-                response = {'state': current['state']}
+                response = {'state': current[segment_count]['state']}
 
             response = json.dumps(response)
             mqtt.publish(MQTT_STATE_TOPIC, payload=response, qos=MQTT_QOS,
