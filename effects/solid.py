@@ -31,4 +31,4 @@ def effect_solid_segment(strip, color, brightness, start, end):
     #     led_array[i]['state'] = 'ON'
     utils.set_segment_color(
         strip, utils.get_color(color, brightness), start, end)
-    time.sleep(10)
+    #time.sleep(10)

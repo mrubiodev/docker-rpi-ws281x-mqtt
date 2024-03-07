@@ -232,7 +232,7 @@ def on_mqtt_message(mqtt, data, message):
                     # efects with color
                     if current[segment_count]['effect'] == 'effect_solid_segment':
                         print('Setting new solid color: %s' %
-                            current[segment_count]['color'])
+                        current[segment_count]['color'])
                         effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1])
                     elif current[segment_count]['effect'] in effects_list['color_effects']:
                         print('Setting new color effect: "%s"' %
