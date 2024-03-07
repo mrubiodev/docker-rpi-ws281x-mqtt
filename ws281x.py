@@ -168,7 +168,7 @@ def on_mqtt_message(mqtt, data, message):
         segment_name = 'segment_%d_%d' % (segment[0], segment[1])
         segment_count = LED_SEGMENTS.index(segment)
         print(message.topic)
-        if message.topic == '%s/%s' % (MQTT_COMMAND_TOPIC, segment_name):
+        if message.topic == '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name):
             if payload['state'] == 'ON' or payload['state'] == 'OFF':
                 if current[segment_count]['state'] != payload['state']:
                     print("Turning %s" % payload['state'])
