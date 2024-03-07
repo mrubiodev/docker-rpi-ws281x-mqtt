@@ -230,7 +230,11 @@ def on_mqtt_message(mqtt, data, message):
                     response['color'] = current[segment_count]['color']
 
                     # efects with color
-                    if current[segment_count]['effect'] in effects_list['color_effects']:
+                    if current[segment_count]['effect'] == 'effect_solid_segment':
+                        print('Setting new solid color: %s' %
+                            current[segment_count]['color'])
+                        effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1])
+                    elif current[segment_count]['effect'] in effects_list['color_effects']:
                         print('Setting new color effect: "%s"' %
                             get_fn_pretty(current[segment_count]['effect']))
 #Basierend auf dem aktuellen segment count das effect_process[] starten                                
@@ -309,12 +313,12 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'unique_id': '%s_%s' % (MQTT_ID, segment_name),
                 'device':{
                     'identifiers':[
-                        "Neopixel"
+                        'Neopixel'
                         ],
-                    "name":"Neopixel LED Strip",
-                    "sw_version":"1.0.0",
-                    "manufacturer":"Budgie",
-                    "model":"AAAAAA"
+                    'name': 'Neopixel LED Strip',
+                    'sw_version': '1.0.0',
+                    'manufacturer': 'Budgie',
+                    'model': 'AAAAAA'
                     }
             }
             )
