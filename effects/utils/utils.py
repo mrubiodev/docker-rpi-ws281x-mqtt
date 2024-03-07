@@ -19,6 +19,6 @@ def set_segment_color(strip, new_color, start, end):
     for i in range(start, end):
         strip.setPixelColor(i, new_color)
     for i in range(460):
-        print(strip.getPixelColor(i))
+        print(strip.getPixelColor(i) , end = " ")
     strip.show()
     
