@@ -13,6 +13,7 @@ from effects.theater_chase_rainbow import effect_theater_chase_rainbow
 from effects.rainbow_cycle import effect_rainbow_cycle
 from effects.solid import effect_solid
 from effects.knight_rider import effect_knight_rider
+from typing import List
 
 LED_GPIO = os.getenv('LED_GPIO', 18)
 LED_COUNT = os.getenv('LED_COUNT', 10)
@@ -55,20 +56,10 @@ MQTT_PAYLOAD_OFFLINE = '0'
 current = []
 
 
+effect_processes: List[multiprocessing.Process] = []
+effect_active = []
 for segment in LED_SEGMENTS:
-    current_instance = {
-        'state': 'OFF',
-        'color': {'r': 255, 'g': 255, 'b': 255},
-        'brightness': 255,
-        'effect': 'effect_solid'
-    }
-    current.append(current_instance)
-
-
-# worker process that maintains running effects
-#basierend auf der Anzahl der LED_SEGMENTS
-effect_processes = [None] * len(LED_SEGMENTS)
-effect_active = [False] * len(LED_SEGMENTS)
+    effect_active.append(multiprocessing.Process)
 
 # key is actually a function name
 effects_list = {
@@ -177,9 +168,9 @@ def on_mqtt_message(mqtt, data, message):
                     current[segment_count]['state'] = payload['state']
 
                 # terminate active effect
-                if effect_active:
-                    effect_process.terminate()
-                    effect_active = False
+                if effect_active[segment_count]:
+                    effect_process[segment_count].terminate()
+                    effect_active[segment_count] = False
 
                 # power on led strip
                 if current[segment_count]['state'] == 'ON':
@@ -222,19 +213,19 @@ def on_mqtt_message(mqtt, data, message):
                         effect_process[segment.count] = \
                             multiprocessing.Process(target=loop_function_call, args=(
                                 current[segment_count]['effect'], strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1]))
-                        effect_process[segment.count].start()
-                effect_active[segment.count] = True
+                        effect_process[segment_count].start()
+                effect_active[segment_count] = True
 
             # efects not dependant on the color
             elif current[segment_count]['effect'] in effects_list['effects']:
                 print('Setting new effect: "%s"' %
                       get_fn_pretty(current[segment_count]['effect']))
 
-                effect_process = \
+                effect_process[segment_count] = \
                     multiprocessing.Process(target=loop_function_call,
                                             args=(current[segment_count]['effect'], strip, 30))
-                effect_process.start()
-                effect_active = True
+                effect_process[segment_count].start()
+                effect_active[segment_count] = True
 
             else:
                 response['error'] = \
