@@ -344,6 +344,8 @@ strip = Adafruit_NeoPixel(
     LED_STRIP_TYPE
 )
 
+effect_solid_init(LED_COUNT)
+
 # Intialize the library (must be called once before other functions).
 strip.begin()
 set_all_leds_color(strip, 0x000000)

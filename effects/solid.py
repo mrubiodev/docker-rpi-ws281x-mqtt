@@ -6,9 +6,9 @@ from effects.utils import utils
 
 LED_COUNT = 0
 
-def init(strip):
+def effect_solid_init(_ledcount):
     global LED_COUNT
-    LED_COUNT = strip.numPixels()
+    LED_COUNT = _ledcount
 
 def effect_solid(strip, color, brightness):
     utils.set_all_leds_color(
