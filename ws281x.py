@@ -49,14 +49,19 @@ MQTT_PAYLOAD_OFFLINE = '0'
 # global states
 #iteriere durch led segments und füge in jedes segment ein current dict ein
 #current dict enthält die aktuellen Werte für das Segment
+#current definieren
+
+current = []
+
+
 for segment in LED_SEGMENTS:
-    segment_count = LED_SEGMENTS.index(segment)
-    current[segment_count] = {
+    current_instance = {
         'state': 'OFF',
         'color': {'r': 255, 'g': 255, 'b': 255},
         'brightness': 255,
         'effect': 'effect_solid'
     }
+    current.append(current_instance)
 
 
 # worker process that maintains running effects
