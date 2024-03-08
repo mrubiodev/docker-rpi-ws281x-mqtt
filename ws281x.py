@@ -3,6 +3,7 @@
 import json
 import multiprocessing
 import os
+import ast
 import paho.mqtt.client as paho
 import time
 from rpi_ws281x import Color
@@ -27,8 +28,10 @@ LED_INVERT = os.getenv('LED_INVERT', 0)
 LED_STRIP_TYPE = os.getenv('LED_STRIP_TYPE', 'GRB').upper()
 #Array für die Segmente erstellen, das Array muss jeweils segment_start und segment_end enthalten
 #Das Array muss zweidimensional sein, also [[segment_start, segment_end], [segment_start, segment_end], ...]
-LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 126], [127, 140], [142,176], [177,238], [239,280], [281,408], [409,464]])
+LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 126], [127, 140]])
 
+if isinstance(LED_SEGMENTS, str):
+    LED_SEGMENTS = ast.literal_eval(LED_SEGMENTS)
 
 
 MQTT_BROKER = os.getenv('MQTT_BROKER', 'localhost')
