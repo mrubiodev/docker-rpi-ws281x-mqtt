@@ -288,7 +288,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
         print('MQTT connected')
 #durch LED_SEGMENTS iterieren und die Segmente in MQTT bekannt machen
         for segment in LED_SEGMENTS:
-            segment_name = '_%d' % (segment[0])
+            segment_name = '_%s' % (segment[0])
             segment_count = LED_SEGMENTS.index(segment)
             print("Segment count")
             print(segment_count)
