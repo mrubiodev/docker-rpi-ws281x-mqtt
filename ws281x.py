@@ -263,7 +263,8 @@ def on_mqtt_message(mqtt, data, message):
 
                 else: #Turn off LEDS
                     #set_segment_color(strip, 0x000000, )
-                    effect_solid_segment(strip, {'r': 0, 'g': 0, 'b': 0}, 0, segment[0], segment[1])
+                    for leds in segment[1]:
+                        effect_solid_segment(strip, {'r': 0, 'g': 0, 'b': 0}, 0, leds[0], leds[1])
 
                 response['state'] = current[segment_count]['state']
 
@@ -288,13 +289,12 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
         print('MQTT connected')
 #durch LED_SEGMENTS iterieren und die Segmente in MQTT bekannt machen
         for segment in LED_SEGMENTS:
-            segment_name = '_%s' % (segment[0])
             segment_count = LED_SEGMENTS.index(segment)
             print("Segment count")
             print(segment_count)
             discovery_data = json.dumps(
                 {
-                'name': '%s_%s' % (MQTT_ID, segment_name),
+                'name': '%s_%s' % (MQTT_ID, segment[0]),
                 'schema': 'json',
                 'command_topic': '%s/segment_%s/command' % (MQTT_COMMAND_TOPIC, segment_count),
                 'state_topic': '%s/segment_%s/state' % (MQTT_STATE_TOPIC, segment_count),
