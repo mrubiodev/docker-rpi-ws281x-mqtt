@@ -28,7 +28,7 @@ LED_INVERT = os.getenv('LED_INVERT', 0)
 LED_STRIP_TYPE = os.getenv('LED_STRIP_TYPE', 'GRB').upper()
 #Array für die Segmente erstellen, das Array muss jeweils segment_start und segment_end enthalten
 #Das Array muss zweidimensional sein, also [[segment_start, segment_end], [segment_start, segment_end], ...]
-LED_SEGMENTS = os.getenv('LED_SEGMENTS', [[0, 126], [127, 140]])
+LED_SEGMENTS = os.getenv('LED_SEGMENTS', [['Bett 1',[[0, 126]]], ['Bad',[[127, 140], [142,176]]]])
 
 if isinstance(LED_SEGMENTS, str):
     LED_SEGMENTS = ast.literal_eval(LED_SEGMENTS)
@@ -180,11 +180,8 @@ def on_mqtt_message(mqtt, data, message):
     response = {}
     #MQTT Message auslesen und in die Segmente schreiben
     for segment in LED_SEGMENTS:
-        #print(segment)
-        segment_name = 'segment_%d_%d' % (segment[0], segment[1])
         segment_count = LED_SEGMENTS.index(segment)
-        #print(message.topic)
-        if message.topic == '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name):
+        if message.topic == '%s/segment_%s/command' % (MQTT_COMMAND_TOPIC, segment_count):
             if payload['state'] == 'ON' or payload['state'] == 'OFF':
                 if current[segment_count]['state'] != payload['state']:
                     print("Turning %s" % payload['state'])
@@ -236,7 +233,9 @@ def on_mqtt_message(mqtt, data, message):
                     if current[segment_count]['effect'] == 'effect_solid_segment':
                         print('Setting new solid color: %s' %
                         current[segment_count]['color'])
-                        effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1])
+                        for leds in range(segment[1]):
+                            effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], leds[0], leds[1])
+                       #effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1][0], segment[1][1])
                     elif current[segment_count]['effect'] in effects_list['color_effects']:
                         print('Setting new color effect: "%s"' %
                             get_fn_pretty(current[segment_count]['effect']))
@@ -279,7 +278,7 @@ def on_mqtt_message(mqtt, data, message):
                 response['state'] = current[segment_count]['state']
 
             response = json.dumps(response)
-            current_state_topic = '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name)
+            current_state_topic = '%s/segment_%s/state' % (MQTT_STATE_TOPIC, segment_count)
             mqtt.publish(current_state_topic, payload=response, qos=MQTT_QOS,
                         retain=True)
 
@@ -289,7 +288,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
         print('MQTT connected')
 #durch LED_SEGMENTS iterieren und die Segmente in MQTT bekannt machen
         for segment in LED_SEGMENTS:
-            segment_name = 'segment_%d_%d' % (segment[0], segment[1])
+            segment_name = '_%d' % (segment[0])
             segment_count = LED_SEGMENTS.index(segment)
             print("Segment count")
             print(segment_count)
@@ -297,8 +296,8 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 {
                 'name': '%s_%s' % (MQTT_ID, segment_name),
                 'schema': 'json',
-                'command_topic': '%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name),
-                'state_topic': '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name),
+                'command_topic': '%s/segment_%s/command' % (MQTT_COMMAND_TOPIC, segment_count),
+                'state_topic': '%s/segment_%s/state' % (MQTT_STATE_TOPIC, segment_count),
                 'availability_topic': MQTT_STATUS_TOPIC, 
                 'payload_available': MQTT_PAYLOAD_ONLINE,
                 'payload_not_available': MQTT_PAYLOAD_OFFLINE,
@@ -309,7 +308,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'effect': True,
                 'effect_list': effect_list_string(),
                 'optimistic': False,
-                'uniq_id': '%s_%s' % (MQTT_ID, segment_name),
+                'uniq_id': '%s_segment_%s' % (MQTT_ID, segment_count),
                 'device':{
                     'identifiers':[
                         'Neopixel'
@@ -322,10 +321,10 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
             }
             )
 
-            mqtt.subscribe('%s/%s/command' % (MQTT_COMMAND_TOPIC, segment_name))
+            mqtt.subscribe('%s/segment_%s/command' % (MQTT_COMMAND_TOPIC, segment_count))
             mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
                          qos=MQTT_QOS, retain=True)
-            mqtt.publish('%s/%s/config' % (MQTT_CONFIG_TOPIC, segment_name),
+            mqtt.publish('%s/segment_%s/config' % (MQTT_CONFIG_TOPIC, segment_count),
                          payload=discovery_data, qos=MQTT_QOS, retain=True)
 
             if current[segment_count]['state'] == 'ON':
@@ -339,7 +338,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 response = {'state': current[segment_count]['state']}
 
             response = json.dumps(response)
-            current_state_topic = '%s/%s/state' % (MQTT_STATE_TOPIC, segment_name)
+            current_state_topic = '%s/segment_%s/state' % (MQTT_STATE_TOPIC, segment_count)
             mqtt.publish(current_state_topic, payload=response, qos=MQTT_QOS,
                         retain=True)
     else:
