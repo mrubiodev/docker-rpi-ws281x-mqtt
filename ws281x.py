@@ -266,7 +266,7 @@ def on_mqtt_message(mqtt, data, message):
 
                 else: #Turn off LEDS
                     #set_segment_color(strip, 0x000000, )
-                    effect_solid_segment(strip, {'r': 0, 'g': 0, 'b': 0}, 0, segment[1])
+                    effect_solid_segment(strip, {'r': 0, 'g': 0, 'b': 0, 'w': 0}, 0, segment[1])
 
                 response['state'] = current[segment_count]['state']
 
