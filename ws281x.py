@@ -243,7 +243,7 @@ def on_mqtt_message(mqtt, data, message):
 #Basierend auf dem aktuellen segment count das effect_process[] starten                                
                         effect_process[segment_count] = \
                             multiprocessing.Process(target=loop_function_call, args=(
-                                current[segment_count]['effect'], strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[0], segment[1]))
+                                current[segment_count]['effect'], strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1]))
                         effect_process[segment_count].start()
                         effect_active[segment_count] = True
 
