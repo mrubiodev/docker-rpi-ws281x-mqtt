@@ -306,7 +306,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
                 'qos': MQTT_QOS,
                 'brightness': True,
                 'rgb': True,
-                'color_temp': False,
+                'color_temp': True,
                 'effect': True,
                 'effect_list': effect_list_string(),
                 'optimistic': False,
