@@ -33,8 +33,8 @@ def effect_solid_segment(strip, color, brightness, segment):
         strip, utils.get_color(color, brightness), segment)
     #time.sleep(10)
 
-def effect_solid_transition(strip, color, brightness, start, end, duration=1000):
-    utils.set_segment_color(
-        strip, utils.get_color(color, brightness), start, end)
-    
-    time.sleep(10)
+def effect_solid_transition(strip, color, brightness, segment, duration=1000):
+    for i in range(0, brightness, 5):
+        utils.set_segment_color(
+            strip, utils.get_color(color, i), segment)
+        time.sleep(duration / 1000 / (brightness / 5))

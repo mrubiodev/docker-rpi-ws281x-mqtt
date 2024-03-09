@@ -65,20 +65,14 @@ for segment in LED_SEGMENTS:
         'state': 'OFF',
         'color': {'r': 255, 'g': 255, 'b': 255},
         'brightness': 255,
-        'effect': 'effect_solid_segment'
+        'effect': 'effect_solid_transition'
     }
     current.append(current_instance)
 
-#effect_processes: List[multiprocessing.Process] = []
-#for segment in LED_SEGMENTS:
-#    effect_processes.append(multiprocessing.Process())
+# worker process that maintains running effects
+effect_process = None
+effect_active = False
 
-effect_process = [None] * len(LED_SEGMENTS)  # Assuming LED_SEGMENTS defines the segments
-
-
-effect_active = []
-for segment in LED_SEGMENTS:
-    effect_active.append(multiprocessing.Process())
 
 # key is actually a function name
 effects_list = {
@@ -191,12 +185,9 @@ def on_mqtt_message(mqtt, data, message):
                     # set global state
                     current[segment_count]['state'] = payload['state']
 
-                # terminate active effect
-                if effect_active[segment_count]:
-                    if effect_process[segment_count] is not None:
-                        effect_process[segment_count].terminate()
-                        effect_process[segment_count] = None  # Optionally reset the entry after termination
-                    effect_active[segment_count] = False
+                if effect_active:
+                    effect_process.terminate()
+                    effect_active = False
 
                 # power on led strip
                 if current[segment_count]['state'] == 'ON':
@@ -237,26 +228,37 @@ def on_mqtt_message(mqtt, data, message):
                         current[segment_count]['color'])
                         effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
 
+                    elif current[segment_count]['effect'] == 'effect_solid_transition':
+                        print('Setting new solid transition: %s' %
+                        current[segment_count]['color'])
+                        effect_process = \
+                            multiprocessing.Process(target=
+                            effect_solid_transition(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
+                            )
+                        effect_process.start()
+                        effect_active = True
+                        #effect_solid_transition(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
+
                     elif current[segment_count]['effect'] in effects_list['color_effects']:
                         print('Setting new color effect: "%s"' %
                             get_fn_pretty(current[segment_count]['effect']))
 #Basierend auf dem aktuellen segment count das effect_process[] starten                                
-                        effect_process[segment_count] = \
+                        effect_process = \
                             multiprocessing.Process(target=loop_function_call, args=(
                                 current[segment_count]['effect'], strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1]))
-                        effect_process[segment_count].start()
-                        effect_active[segment_count] = True
+                        effect_process.start()
+                        effect_active = True
 
                     # efects not dependant on the color
                     elif current[segment_count]['effect'] in effects_list['effects']:
                         print('Setting new effect: "%s"' %
                             get_fn_pretty(current[segment_count]['effect']))
 
-                        effect_process[segment_count] = \
+                        effect_process = \
                             multiprocessing.Process(target=loop_function_call,
                                                     args=(current[segment_count]['effect'], strip, 30))
-                        effect_process[segment_count].start()
-                        effect_active[segment_count] = True
+                        effect_process.start()
+                        effect_active = True
 
                     else:
                         response['error'] = \
