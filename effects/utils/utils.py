@@ -6,7 +6,8 @@ from rpi_ws281x import Color
 def get_color(color, brightness):
     return Color(int(color['r'] * brightness / 255),
                  int(color['g'] * brightness / 255),
-                 int(color['b'] * brightness / 255))
+                 int(color['b'] * brightness / 255),
+                 int(color['w'] * brightness / 255) )
 
 
 def set_all_leds_color(strip, new_color):

@@ -63,7 +63,7 @@ current = []
 for segment in LED_SEGMENTS:
     current_instance = {
         'state': 'OFF',
-        'color': {'r': 255, 'g': 255, 'b': 255},
+        'color': {'r': 255, 'g': 255, 'b': 255, 'w': 255},
         'brightness': 255,
         'effect': 'effect_solid_transition'
     }
