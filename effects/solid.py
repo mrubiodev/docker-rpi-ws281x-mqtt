@@ -23,12 +23,18 @@ def effect_solid(strip, color, brightness):
     time.sleep(10)
     
 
-def effect_solid_segment(strip, color, brightness, start, end):
+def effect_solid_segment(strip, color, brightness, segment):
     # print(LED_COUNT)
     # for i in range(start, end):
     #     led_array[i]['color'] = color
     #     led_array[i]['brightness'] = brightness
     #     led_array[i]['state'] = 'ON'
     utils.set_segment_color(
-        strip, utils.get_color(color, brightness), start, end)
+        strip, utils.get_color(color, brightness), segment)
     #time.sleep(10)
+
+def effect_solid_transition(strip, color, brightness, start, end, duration=1000):
+    utils.set_segment_color(
+        strip, utils.get_color(color, brightness), start, end)
+    
+    time.sleep(10)

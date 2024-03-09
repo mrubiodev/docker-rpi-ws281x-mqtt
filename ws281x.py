@@ -14,6 +14,7 @@ from effects.theater_chase_rainbow import effect_theater_chase_rainbow
 from effects.rainbow_cycle import effect_rainbow_cycle
 from effects.solid import effect_solid
 from effects.solid import effect_solid_segment
+from effects.solid import effect_solid_transition
 #from effects.solid import effect_solid_init
 from effects.knight_rider import effect_knight_rider
 from typing import List
@@ -88,6 +89,7 @@ effects_list = {
     'color_effects': {
         'effect_solid': 'Solid',
         'effect_solid_segment': 'Solid Segment',
+        'effect_solid_transition': 'Solid Transition',
         'effect_knight_rider': 'Knight Rider'
     }
 }
@@ -233,9 +235,8 @@ def on_mqtt_message(mqtt, data, message):
                     if current[segment_count]['effect'] == 'effect_solid_segment':
                         print('Setting new solid color: %s' %
                         current[segment_count]['color'])
-                        for leds in segment[1]:
-                            effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], leds[0], leds[1])
-                       #effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1][0], segment[1][1])
+                        effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
+
                     elif current[segment_count]['effect'] in effects_list['color_effects']:
                         print('Setting new color effect: "%s"' %
                             get_fn_pretty(current[segment_count]['effect']))
