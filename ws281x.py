@@ -221,6 +221,7 @@ def on_mqtt_message(mqtt, data, message):
                     response['effect'] = get_fn_pretty(current[segment_count]['effect'])
                     response['brightness'] = current[segment_count]['brightness']
                     response['color'] = current[segment_count]['color']
+                    response['color_mode'] = 'rgbw'
 
                     # efects with color
                     if current[segment_count]['effect'] == 'effect_solid_segment':
