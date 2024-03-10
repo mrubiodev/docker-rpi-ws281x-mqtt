@@ -73,6 +73,8 @@ for segment in LED_SEGMENTS:
 effect_process = None
 effect_active = False
 
+set_transition = False
+
 
 # key is actually a function name
 effects_list = {
@@ -181,7 +183,7 @@ def on_mqtt_message(mqtt, data, message):
             if payload['state'] == 'ON' or payload['state'] == 'OFF':
                 if current[segment_count]['state'] != payload['state']:
                     print("Turning %s" % payload['state'])
-
+                    set_transition = True
                     # set global state
                     current[segment_count]['state'] = payload['state']
 
@@ -224,7 +226,7 @@ def on_mqtt_message(mqtt, data, message):
                     response['color_mode'] = 'rgbw'
 
                     # efects with color
-                    if (current[segment_count]['effect'] == 'effect_solid_transition') and (current[segment_count]['state'] != payload['state']) :
+                    if (current[segment_count]['effect'] == 'effect_solid_transition') and (set_transition) :
                         print('Setting new solid transition: %s' %
                         current[segment_count]['color'])
                         effect_process = \
