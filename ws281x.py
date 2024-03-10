@@ -174,7 +174,7 @@ def on_mqtt_message(mqtt, data, message):
     payload = json.loads(str(message.payload.decode('utf-8')))
     print('Message received ', payload)
 
-    global current, effect_active, effect_process
+    global current, effect_active, effect_process, set_transition
     response = {}
     #MQTT Message auslesen und in die Segmente schreiben
     for segment in LED_SEGMENTS:
