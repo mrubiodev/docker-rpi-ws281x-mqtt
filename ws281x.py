@@ -224,7 +224,7 @@ def on_mqtt_message(mqtt, data, message):
                     response['color_mode'] = 'rgbw'
 
                     # efects with color
-                    if (current[segment_count]['effect'] == 'effect_solid_transition') and (current[segment_count]['state'] == 'OFF') :
+                    if (current[segment_count]['effect'] == 'effect_solid_transition') and (current[segment_count]['state'] != payload['state']) :
                         print('Setting new solid transition: %s' %
                         current[segment_count]['color'])
                         effect_process = \
