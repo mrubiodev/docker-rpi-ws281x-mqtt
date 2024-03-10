@@ -235,6 +235,7 @@ def on_mqtt_message(mqtt, data, message):
                             )
                         effect_process.start()
                         effect_active = True
+                        set_transition = False
 
                     elif (current[segment_count]['effect'] == 'effect_solid_segment') or (current[segment_count]['effect'] == 'effect_solid_transition'):
                         print('Setting new solid color: %s' %
