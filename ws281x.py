@@ -224,12 +224,7 @@ def on_mqtt_message(mqtt, data, message):
                     response['color_mode'] = 'rgbw'
 
                     # efects with color
-                    if current[segment_count]['effect'] == 'effect_solid_segment':
-                        print('Setting new solid color: %s' %
-                        current[segment_count]['color'])
-                        effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
-
-                    elif current[segment_count]['effect'] == 'effect_solid_transition':
+                    if (current[segment_count]['effect'] == 'effect_solid_transition') and (current[segment_count]['state'] == 'ON') :
                         print('Setting new solid transition: %s' %
                         current[segment_count]['color'])
                         effect_process = \
@@ -238,8 +233,11 @@ def on_mqtt_message(mqtt, data, message):
                             )
                         effect_process.start()
                         effect_active = True
-                        #effect_solid_transition(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
 
+                    elif (current[segment_count]['effect'] == 'effect_solid_segment') or (current[segment_count]['effect'] == 'effect_solid_transition'):
+                        print('Setting new solid color: %s' %
+                        current[segment_count]['color'])
+                        effect_solid_segment(strip, current[segment_count]['color'], current[segment_count]['brightness'], segment[1])
                     elif current[segment_count]['effect'] in effects_list['color_effects']:
                         print('Setting new color effect: "%s"' %
                             get_fn_pretty(current[segment_count]['effect']))
