@@ -54,7 +54,7 @@ services:
 
 ## MQTT topics
 ### To set color
-Send to topic: `rpi-ws281x/command`
+Send to topic: `rpi-ws281x/segment_x/command`
 
 *Note: `color` and `effect` are optional keys, you can send both or just one or none in which case last color selected is used.*
 ```json
@@ -70,7 +70,7 @@ Send to topic: `rpi-ws281x/command`
 ```
 
 ### To turn off
-Send to topic: `rpi-ws281x/command`
+Send to topic: `rpi-ws281x/segment_x/command`
 ```json
 {
     "state": "OFF"
@@ -78,7 +78,7 @@ Send to topic: `rpi-ws281x/command`
 ```
 
 ### Last state
-Topic: `rpi-ws281x/state`
+Topic: `rpi-ws281x/segment_x/state`
 ```json
 {
     "state": "ON",
