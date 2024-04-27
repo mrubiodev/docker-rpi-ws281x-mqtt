@@ -38,9 +38,11 @@ services:
       - 1883:1883
 
   rpi_ws281x:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     container_name: rpi_ws281x
     restart: unless-stopped
-    image: pilotak/rpi-ws281x-mqtt
     privileged: true
     depends_on:
       - mosquitto
