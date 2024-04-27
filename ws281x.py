@@ -19,13 +19,13 @@ from effects.solid import effect_solid_transition
 from effects.knight_rider import effect_knight_rider
 from typing import List
 
-LED_GPIO = os.getenv('LED_GPIO', 18)
-LED_COUNT = os.getenv('LED_COUNT', 10)
-LED_CHANNEL = os.getenv('LED_CHANNEL', 0)
-LED_FREQ_HZ = os.getenv('LED_FREQ_HZ', 800000)
-LED_DMA_NUM = os.getenv('LED_DMA_NUM', 10)
-LED_BRIGHTNESS = os.getenv('LED_BRIGHTNESS', 255)
-LED_INVERT = os.getenv('LED_INVERT', 0)
+LED_GPIO = int(os.getenv('LED_GPIO', 18))
+LED_COUNT = int(os.getenv('LED_COUNT', 10))
+LED_CHANNEL = int(os.getenv('LED_CHANNEL', 0))
+LED_FREQ_HZ = int(os.getenv('LED_FREQ_HZ', 800000))
+LED_DMA_NUM = int(os.getenv('LED_DMA_NUM', 10))
+LED_BRIGHTNESS = int(os.getenv('LED_BRIGHTNESS', 255))
+LED_INVERT = int(os.getenv('LED_INVERT', 0))
 LED_STRIP_TYPE = os.getenv('LED_STRIP_TYPE', 'GRB').upper()
 #Array für die Segmente erstellen, das Array muss jeweils segment_start und segment_end enthalten
 #Das Array muss zweidimensional sein, also [[segment_start, segment_end], [segment_start, segment_end], ...]
@@ -38,7 +38,7 @@ if isinstance(LED_SEGMENTS, str):
 MQTT_BROKER = os.getenv('MQTT_BROKER', 'localhost')
 MQTT_USER = os.getenv('MQTT_USER', None)
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD', None)
-MQTT_PORT = os.getenv('MQTT_PORT', 1883)
+MQTT_PORT = int(os.getenv('MQTT_PORT', 1883))
 MQTT_QOS = os.getenv('MQTT_QOS', 1)
 MQTT_ID = os.getenv('MQTT_ID', 'rpi-ws281x')
 MQTT_PREFIX = os.getenv('MQTT_PREFIX', 'rpi-ws281x')
