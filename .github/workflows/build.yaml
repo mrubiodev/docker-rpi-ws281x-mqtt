@@ -4,14 +4,18 @@ on:
   push:
     paths-ignore:
       - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
     branches:
       - master
+  workflow_dispatch:
   pull_request:
     branches:
       - master
     paths-ignore:
       - 'README.md'
       - 'docs/**'
+      - '**/*.md'
 
 permissions:
   contents: read
@@ -22,6 +26,7 @@ concurrency:
 
 jobs:
   build:
+    timeout-minutes: 25
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
